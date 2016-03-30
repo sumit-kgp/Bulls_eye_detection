@@ -39,7 +39,7 @@ MainWindow::MainWindow(QWidget *parent) :
      start = clock();
      Mat src_gray;
      cv::resize(src, src_gray, Size(), 0.25, 0.25, INTER_NEAREST);
-
+    imshow("second commit", src_gray);
       /// Convert it to gray
       cvtColor( src_gray, src_gray, CV_BGR2GRAY );
       //GaussianBlur( src_gray, src_gray, Size(15,15), 5, 5, BORDER_DEFAULT );
