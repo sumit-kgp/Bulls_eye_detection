@@ -4,7 +4,8 @@
 #include <iostream>
 #include <opencv2/core/core.hpp>
 #include "opencv2/imgproc/imgproc.hpp"
-//#include <stdlib.h>
+#include <stdlib.h>
+#include "calcmaxintensity.h"
 //#include <QQuickItem>
 
 class least_square_detection

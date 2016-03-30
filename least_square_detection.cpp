@@ -4,6 +4,7 @@
 #include <opencv2/core/core.hpp>
 #include "opencv2/imgproc/imgproc.hpp"
 #include <stdlib.h>
+#include "calcmaxintensity.h"
 
 using namespace cv;
 using namespace std;
@@ -19,7 +20,7 @@ least_square_detection::least_square_detection(cv::Mat* srcROI, cv::Mat grad_x, 
     Mat I = (Mat_<float>(2,2) << 1, 0, 0, 1);
 
     int resolution = 1;
-    for (int i = 0 ; i < srcROI->rows ; i+= resolution)
+   /* for (int i = 0 ; i < srcROI->rows ; i+= resolution)
     {
 
         for (int j = 0 ; j < srcROI->cols ; j+= resolution)
@@ -33,8 +34,9 @@ least_square_detection::least_square_detection(cv::Mat* srcROI, cv::Mat grad_x, 
             pixel = pixel+resolution;
         }
 
-    }
+    }*/
 
+    calcMaxIntensity(*srcROI, grad_x, grad_y, &grad);
     double minVal, maxVal;
     minMaxLoc(grad, &minVal, &maxVal, NULL, NULL);
 

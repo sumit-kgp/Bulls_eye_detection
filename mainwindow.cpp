@@ -176,8 +176,8 @@ MainWindow::MainWindow(QWidget *parent) :
         least_square_detection(&srcROI, grad_x, grad_y, grad, newLoc, &X, &Y);                  //does least square computation for nearly concentric vectors
 
 
-        float X_src=std::floor(maxLoc.x-offset+X);
-        float Y_src=std::floor(maxLoc.y-offset+Y);
+        float X_src=(maxLoc.x-offset+X);
+        float Y_src=(maxLoc.y-offset+Y);
         circle(src, Point(X_src,Y_src), 3, Scalar(0,0,255), 3, 8, 0);
         imshow("equalizedonbig", src);
         fprintf(stdout,"location is %f, %f\n", X_src, Y_src);
