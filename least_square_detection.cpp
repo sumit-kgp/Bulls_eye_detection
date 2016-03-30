@@ -65,7 +65,7 @@ least_square_detection::least_square_detection(cv::Mat* srcROI, cv::Mat grad_x, 
                 //if the line passes very close to the centre, then compute least square coordinate
 
 
-                                      if(  (per_dist<3)&&(distance<100))
+                                      if(  (per_dist<3.0)&&(distance<100))
                                         {
 
 

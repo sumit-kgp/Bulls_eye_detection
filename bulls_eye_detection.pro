@@ -17,11 +17,13 @@ SOURCES += main.cpp\
         mainwindow.cpp \
     calcmaxintensity.cpp \
     addstraightline.cpp \
-    least_square_detection.cpp
+    least_square_detection.cpp \
+    multiple_tracking.cpp
 
 HEADERS  += mainwindow.h \
     calcmaxintensity.h \
     addstraightline.h \
-    least_square_detection.h
+    least_square_detection.h \
+    multiple_tracking.h
 
 FORMS    += mainwindow.ui

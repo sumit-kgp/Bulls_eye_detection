@@ -11,6 +11,7 @@
 #include "calcmaxintensity.h"
 #include "addstraightline.h"
 #include "least_square_detection.h"
+#include "multiple_tracking.h"
 
 using namespace cv;
 using namespace std;
@@ -106,27 +107,9 @@ MainWindow::MainWindow(QWidget *parent) :
 
 
         //MULTIPLE TRACKING
+        multiple_tracking(mask, dst, maxVal);
 
-     /*   float tempVal = (float)maxVal;
-        Point temp(0,0);
-        //if to detect multiple centres based on thresholding
-        for(int i = 0 ; i < src_gray.rows ; i+= resolution){
-            float* pixel = mask.ptr<float>(i);
-            for(int j = 0 ; j < src_gray.cols ; j+= resolution)
-            {
-                if(mask.at<uchar>(i,j)>0.6*maxVal){
-                    Point p(j,i);
-                    float dist = std::sqrt(std::pow(temp.x-p.x,2)+std::pow(temp.y-p.y,2));//5000.0;
-                     if(dist>5){
-                        circle(dst, p, 1, Scalar(255,0,0), 1, 8, 0);
-                        std::cout << "points" << std::endl << p.x << "," <<p.y<< std::endl;
-                        temp = p;
-                     }
-                    }
-            }
-            pixel = pixel+resolution;
-        }
-        imshow("equalized_pre", dst);    END OF MULTIPLE TRACKING*/
+        //  END OF MULTIPLE TRACKING
 
 
         //HISTOGRAM EQUALIZATION
