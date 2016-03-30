@@ -144,7 +144,7 @@ MainWindow::MainWindow(QWidget *parent) :
             maxLoc.x = xscale*maxLoc.x;
             maxLoc.y = yscale*maxLoc.y;
 
-           // circle(src, maxLoc, 4, Scalar(255,0,0), 4, 8, 0);
+           // circle(src, maxLoc, 4, Scalar(255,0,0), 4, 8, 0);             //DISPLAY THE PRELIMINARY CENTER
 
             fprintf(stdout,"Maximum intensity is %f @ %d,%d\n",maxVal, maxLoc.x, maxLoc.y);
 

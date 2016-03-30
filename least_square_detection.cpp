@@ -20,21 +20,6 @@ least_square_detection::least_square_detection(cv::Mat* srcROI, cv::Mat grad_x, 
     Mat I = (Mat_<float>(2,2) << 1, 0, 0, 1);
 
     int resolution = 1;
-   /* for (int i = 0 ; i < srcROI->rows ; i+= resolution)
-    {
-
-        for (int j = 0 ; j < srcROI->cols ; j+= resolution)
-        {
-            float* pixel_x = grad_x.ptr<float>(i,j);
-            float* pixel_y = grad_y.ptr<float>(i,j);
-            float* pixel = grad.ptr<float>(i,j);
-               *pixel = std::sqrt(std::pow(*pixel_x,2)+std::pow(*pixel_y,2));
-            pixel_x = pixel_x+resolution;
-            pixel_y = pixel_y+resolution;
-            pixel = pixel+resolution;
-        }
-
-    }*/
 
     calcMaxIntensity(*srcROI, grad_x, grad_y, &grad);
     double minVal, maxVal;
@@ -54,8 +39,7 @@ least_square_detection::least_square_detection(cv::Mat* srcROI, cv::Mat grad_x, 
         Point2f grad_ptr;
         grad_ptr.x = *pixel_x;
         grad_ptr.y = *pixel_y;
-        //*pixel = std::sqrt(std::pow(*pixel_x,2)+std::pow(*pixel_y,2));
-       // std::cout << "intensities" << std::endl << *pixel<< std::endl;
+
 
                 if(*pixel>0.04*maxVal)
                 {
@@ -80,12 +64,12 @@ least_square_detection::least_square_detection(cv::Mat* srcROI, cv::Mat grad_x, 
 
                 //if the line passes very close to the centre, then compute least square coordinate
 
-                //float per_dist = std::abs(distance*std::cos(std::atan2(p.x-maxLoc.x,p.y-maxLoc.y)-std::atan2( (p2.y-p.y),(p.x-p2.x) ))*180/CV_PI);
+
                                       if(  (per_dist<3)&&(distance<100))
                                         {
 
 
-                                           //  std::cout << "intensities" << std::endl << *pixel<< std::endl;
+
                                             Mat_<float> V_buf(1,1);
                                             Mat V = (Mat_<float>(2,1) << (p2.x-p.x), (p2.y-p.y));
 
@@ -98,13 +82,13 @@ least_square_detection::least_square_detection(cv::Mat* srcROI, cv::Mat grad_x, 
 
                                             subtract(I,(V_buf_t)*(1/V_buf[0][0]), den_buf1);
                                             num_buf1 = den_buf1*P;
-                                            //add(num_buf, num_buf1, num_buf);
+
                                             num_buf = num_buf1+num_buf;
                                             den_buf = den_buf1+den_buf;
-                                            //std::cout << "den_buf" << std::endl << den_buf<< std::endl;
+
 
                                            arrowedLine(*srcROI,p2,p,Scalar(0,255,0),0.1,8,0,0.1);
-                                            //line(src, p, p2, Scalar(255,0,0), 1, LINE_8, 0);
+
                                         }
                 }
         pixel_x = pixel_x+resolution;
@@ -113,13 +97,11 @@ least_square_detection::least_square_detection(cv::Mat* srcROI, cv::Mat grad_x, 
         }
     }
 
-   //den_buf = buf*I-den_buf;
+
    den_buf = den_buf.inv();
-   //std::cout << "num_buf" << std::endl << num_buf<< std::endl;
-    //fprintf(stdout,"distance %f, per_distance %f, %f,%f\n",den_buf.at<float>(0,0), den_buf.at<float>(1,0),den_buf.at<float>(1,1),den_buf.at<float>(1,1) );
    final_product = den_buf*num_buf;
    *X = final_product.at<float>(0,0);
    *Y = final_product.at<float>(1,0);
-   //fprintf(stdout,"distance %f, per_distance %f\n",final_product.at<float>(0,0), final_product.at<float>(1,0));
+
 }
 
