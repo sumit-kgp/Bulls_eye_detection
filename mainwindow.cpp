@@ -105,9 +105,14 @@ MainWindow::MainWindow(QWidget *parent) :
 
         minMaxLoc(mask, &minVal, &maxVal);
 
-
         //MULTIPLE TRACKING
-        multiple_tracking(mask, dst, maxVal);
+        std::vector<Point> p_temp;
+        multiple_tracking(mask, dst, maxVal, &p_temp);
+
+        for (int n = 0; n < p_temp.size(); n++)
+        {
+            std::cout << "points of local maxima" << std::endl << p_temp[n].x << "," <<p_temp[n].y<< std::endl;
+        }
 
         //  END OF MULTIPLE TRACKING
 
@@ -124,46 +129,48 @@ MainWindow::MainWindow(QWidget *parent) :
             float xscale = 4.0;//src.cols/800;
             float yscale = 4.0;//src.rows/800;
 
-            maxLoc.x = xscale*maxLoc.x;
-            maxLoc.y = yscale*maxLoc.y;
-
-           // circle(src, maxLoc, 4, Scalar(255,0,0), 4, 8, 0);             //DISPLAY THE PRELIMINARY CENTER
-
-            fprintf(stdout,"Maximum intensity is %f @ %d,%d\n",maxVal, maxLoc.x, maxLoc.y);
-
             imshow("Intersecting lines", mask);
             imshow("equalized", dst);
 
+            for (int n = 0; n < p_temp.size(); n++)
+                {
+
+                maxLoc.x = xscale*p_temp[n].x;
+                maxLoc.y = yscale*p_temp[n].y;
+
+                //circle(src, maxLoc, 4, Scalar(255,0,0), 4, 8, 0);             //DISPLAY THE PRELIMINARY CENTER
+
+                fprintf(stdout,"Maximum intensity is %f @ %d,%d\n",maxVal, maxLoc.x, maxLoc.y);
+
+                //script for printing lines closer to the centre
+
+                Point newLoc;
+                float offset = 100.0;
+                newLoc.x=offset;
+                newLoc.y=offset;
+                Mat srcROI(src,cv::Rect(maxLoc.x-offset,maxLoc.y-offset,2*offset,2*offset));;
+
+                 //GaussianBlur( srcROI, srcROI, Size(5,5), 2, 2, BORDER_DEFAULT );
+                 /// Gradient X
+                 Scharr( srcROI, grad_x, ddepth, 1, 0, scale, delta, BORDER_DEFAULT );
+
+                 /// Gradient Y
+                 Scharr( srcROI, grad_y, ddepth, 0, 1, scale, delta, BORDER_DEFAULT );
+
+                 grad = Mat::zeros(srcROI.size(), CV_32FC1);
+
+                float X, Y;
+
+                //printing lines close to centre
+                least_square_detection(&srcROI, grad_x, grad_y, grad, newLoc, &X, &Y);                  //does least square computation for nearly concentric vectors
 
 
-        //script for printing lines closer to the centre
-
-        Point newLoc;
-        float offset = 100.0;
-        newLoc.x=offset;
-        newLoc.y=offset;
-        Mat srcROI(src,cv::Rect(maxLoc.x-offset,maxLoc.y-offset,2*offset,2*offset));;
-
-         //GaussianBlur( srcROI, srcROI, Size(5,5), 2, 2, BORDER_DEFAULT );
-         /// Gradient X
-         Scharr( srcROI, grad_x, ddepth, 1, 0, scale, delta, BORDER_DEFAULT );
-
-         /// Gradient Y
-         Scharr( srcROI, grad_y, ddepth, 0, 1, scale, delta, BORDER_DEFAULT );
-
-         grad = Mat::zeros(srcROI.size(), CV_32FC1);
-
-        float X, Y;
-
-        //printing lines close to centre
-        least_square_detection(&srcROI, grad_x, grad_y, grad, newLoc, &X, &Y);                  //does least square computation for nearly concentric vectors
-
-
-        float X_src=(maxLoc.x-offset+X);
-        float Y_src=(maxLoc.y-offset+Y);
-        circle(src, Point(X_src,Y_src), 3, Scalar(0,0,255), 3, 8, 0);
+                float X_src=(maxLoc.x-offset+X);
+                float Y_src=(maxLoc.y-offset+Y);
+                circle(src, Point(X_src,Y_src), 3, Scalar(0,0,255), 3, 8, 0);
+                fprintf(stdout,"location is %f, %f\n", X_src, Y_src);
+            }
         imshow("equalizedonbig", src);
-        fprintf(stdout,"location is %f, %f\n", X_src, Y_src);
 
         end = clock();
         elapsed = ((double) (end - start)) / CLOCKS_PER_SEC;

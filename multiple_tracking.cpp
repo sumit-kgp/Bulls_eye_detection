@@ -11,7 +11,7 @@
 using namespace cv;
 using namespace std;
 
-multiple_tracking::multiple_tracking(Mat mask, Mat dst, double maxVal)
+multiple_tracking::multiple_tracking(Mat mask, Mat dst, double maxVal, vector<Point>* p_temp)
 {
     int resolution = 1;
     Point temp(0,0);
@@ -27,6 +27,7 @@ multiple_tracking::multiple_tracking(Mat mask, Mat dst, double maxVal)
                     circle(dst, p, 1, Scalar(255,0,0), 1, 8, 0);
                     std::cout << "points" << std::endl << p.x << "," <<p.y<< std::endl;
                     temp = p;
+                    p_temp->push_back(p);
                  }
                 }
         }
