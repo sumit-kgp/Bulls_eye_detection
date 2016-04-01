@@ -8,10 +8,15 @@
 #include <stdio.h>
 #include <cmath>
 #include <time.h>
+
+//User defined functions/constructors
+
 #include "calcmaxintensity.h"
 #include "addstraightline.h"
 #include "least_square_detection.h"
 #include "multiple_tracking.h"
+#include "suppress_local_neighborhood.h"
+#include "non_maxima_suppression.h"
 
 using namespace cv;
 using namespace std;
@@ -45,6 +50,7 @@ MainWindow::MainWindow(QWidget *parent) :
       cvtColor( src_gray, src_gray, CV_BGR2GRAY );
       //GaussianBlur( src_gray, src_gray, Size(15,15), 5, 5, BORDER_DEFAULT );
       GaussianBlur( src_gray, src_gray, Size(5,5), 2, 2, BORDER_DEFAULT );//when size is petite
+      //GaussianBlur( src_gray, src_gray, Size(3,3), 1, 1, BORDER_DEFAULT );
 
       src_gray.convertTo(src_float,CV_32FC1);
       /// Generate grad_x and grad_y
@@ -105,9 +111,28 @@ MainWindow::MainWindow(QWidget *parent) :
 
         minMaxLoc(mask, &minVal, &maxVal);
 
+
+        Mat mask2;
+        suppress_local_neighborhood(mask, &mask2);
+        imshow("final bitwise", mask2);
+
+           end = clock();
+           elapsed = ((double) (end - start)) / CLOCKS_PER_SEC;
+           fprintf(stdout,"time elapsed before multiple tracking is %f\n", elapsed);
+
         //MULTIPLE TRACKING
         std::vector<Point> p_temp;
-        multiple_tracking(mask, dst, maxVal, &p_temp);
+        //multiple_tracking(mask2, dst, maxVal, &p_temp);
+
+
+        //NON MAXIMA SUPPRESSION
+        for(int i = 0; i<2; i++)
+        non_maxima_suppression(&mask2, &p_temp);
+
+        end = clock();
+        elapsed = ((double) (end - start)) / CLOCKS_PER_SEC;
+        fprintf(stdout,"time elapsed after multiple tracking is %f\n", elapsed);
+
 
         for (int n = 0; n < p_temp.size(); n++)
         {
@@ -119,7 +144,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
         //HISTOGRAM EQUALIZATION
 
-      equalizeHist( mask, dst);
+        equalizeHist( mask, dst);
 
 
             Point minLoc, maxLoc;
@@ -148,7 +173,7 @@ MainWindow::MainWindow(QWidget *parent) :
                 float offset = 100.0;
                 newLoc.x=offset;
                 newLoc.y=offset;
-                Mat srcROI(src,cv::Rect(maxLoc.x-offset,maxLoc.y-offset,2*offset,2*offset));;
+                Mat srcROI(src,cv::Rect(maxLoc.x-offset,maxLoc.y-offset,2*offset,2*offset));
 
                  //GaussianBlur( srcROI, srcROI, Size(5,5), 2, 2, BORDER_DEFAULT );
                  /// Gradient X
@@ -163,7 +188,9 @@ MainWindow::MainWindow(QWidget *parent) :
 
                 //printing lines close to centre
                 least_square_detection(&srcROI, grad_x, grad_y, grad, newLoc, &X, &Y);                  //does least square computation for nearly concentric vectors
-
+                end = clock();
+                elapsed = ((double) (end - start)) / CLOCKS_PER_SEC;
+                fprintf(stdout,"time elapsed after every least square operation %f\n", elapsed);
 
                 float X_src=(maxLoc.x-offset+X);
                 float Y_src=(maxLoc.y-offset+Y);
@@ -174,7 +201,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
         end = clock();
         elapsed = ((double) (end - start)) / CLOCKS_PER_SEC;
-        fprintf(stdout,"time elapsed is %f\n", elapsed);
+        fprintf(stdout,"time elapsed is %f\n\n", elapsed);
 
 
        } //FOR 10 ITERATIONS

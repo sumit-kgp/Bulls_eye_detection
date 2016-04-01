@@ -11,7 +11,7 @@
 class multiple_tracking
 {
 public:
-    multiple_tracking(cv::Mat mask, cv::Mat dst, double maxVal, std::vector<cv::Point> *p_temp );
+   multiple_tracking(cv::Mat mask, cv::Mat dst, double maxVal, std::vector<cv::Point> *p_temp );
 };
 
 #endif // MULTIPLE_TRACKING_H

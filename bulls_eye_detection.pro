@@ -18,12 +18,16 @@ SOURCES += main.cpp\
     calcmaxintensity.cpp \
     addstraightline.cpp \
     least_square_detection.cpp \
-    multiple_tracking.cpp
+    multiple_tracking.cpp \
+    suppress_local_neighborhood.cpp \
+    non_maxima_suppression.cpp
 
 HEADERS  += mainwindow.h \
     calcmaxintensity.h \
     addstraightline.h \
     least_square_detection.h \
-    multiple_tracking.h
+    multiple_tracking.h \
+    suppress_local_neighborhood.h \
+    non_maxima_suppression.h
 
 FORMS    += mainwindow.ui
