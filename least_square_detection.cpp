@@ -64,9 +64,17 @@ least_square_detection::least_square_detection(cv::Mat* srcROI, cv::Mat grad_x, 
             p2.x = p.x+0.01*grad_ptr.x;
             p2.y = p.y+0.01*grad_ptr.y;
 
-           /* Mat V = (Mat_<float>(2,1) << (p2.x-p.x), (p2.y-p.y));
-            float V_buf = std::pow(V.at<float>(0,0),2)+std::pow(V.at<float>(1,0),2);
-            mulTransposed(V, V_buf_t, false);
+            //double 2x2 m;
+            //Mat V(m);
+            //m
+
+            Mat V = (Mat_<float>(2,1) << (p2.x-p.x), (p2.y-p.y));
+            float V_buf = (p2.x-p.x)*(p2.x-p.x)+(p2.y-p.y)+(p2.y-p.y);//std::pow(V.at<float>(0,0),2)+std::pow(V.at<float>(1,0),2);
+            //mulTransposed(V, V_buf_t, false);
+            V_buf_t.at<float>(0,0)=(p2.x-p.x)*(p2.x-p.x);
+            V_buf_t.at<float>(0,1)=(p2.x-p.x)*(p2.y-p.y);
+            V_buf_t.at<float>(1,1)=(p2.y-p.y)*(p2.y-p.y);
+            V_buf_t.at<float>(1,0)=(p2.x-p.x)*(p2.y-p.y);
 
             Mat_<float> P(2,1);
             P << p.x, p.y;
@@ -75,12 +83,12 @@ least_square_detection::least_square_detection(cv::Mat* srcROI, cv::Mat grad_x, 
             Pc<< p.x-newLoc.x, p.y-newLoc.y;
 
             subtract(I,(V_buf_t)*(1/V_buf), den_buf1);
-            perpendicular = (den_buf1*Pc);*/
+            perpendicular = (den_buf1*Pc);
 
-            float per_dist;// = std::sqrt(std::pow(perpendicular.at<float>(0,0),2)+std::pow(perpendicular.at<float>(1,0),2));
+            float per_dist = std::sqrt(std::pow(perpendicular.at<float>(0,0),2)+std::pow(perpendicular.at<float>(1,0),2));
 
             // Slope equation (y1 - y2) / (x1 - x2)
-            if (p.x != p2.x)
+            /*if (p.x != p2.x)
             {
                 float m = (p.y - p2.y) / (p.x - p2.x);
                 // Line equation:  y = mx + b
@@ -90,7 +98,7 @@ least_square_detection::least_square_detection(cv::Mat* srcROI, cv::Mat grad_x, 
             else
             {
                 per_dist = std::abs(newLoc.x-p.x);
-            }
+            }*/
             float distance = std::sqrt(std::pow(p.x-newLoc.x,2)+std::pow(p.y-newLoc.y,2));
 
 
@@ -100,20 +108,20 @@ least_square_detection::least_square_detection(cv::Mat* srcROI, cv::Mat grad_x, 
             if(  (per_dist<3.0)&&(distance<100))
             {
 
-                Mat V = (Mat_<float>(2,1) << (p2.x-p.x), (p2.y-p.y));
+                /*Mat V = (Mat_<float>(2,1) << (p2.x-p.x), (p2.y-p.y));
                 float V_buf = V.at<float>(0,0)*V.at<float>(0,0)+V.at<float>(1,0)*V.at<float>(1,0);
                 mulTransposed(V, V_buf_t, false);
 
                 Mat_<float> P(2,1);
                 P << p.x, p.y;
-                subtract(I,(V_buf_t)*(1/V_buf), den_buf1);
+                subtract(I,(V_buf_t)*(1/V_buf), den_buf1);*/
                 num_buf1 = den_buf1*P;
 
                 num_buf = num_buf1+num_buf;
                 den_buf = den_buf1+den_buf;
 
 
-                arrowedLine(*srcROI,p2,p,Scalar(0,255,0),0.1,8,0,0.1);
+                //arrowedLine(*srcROI,p2,p,Scalar(0,255,0),0.1,8,0,0.1);
 
             }
         }
@@ -125,9 +133,11 @@ least_square_detection::least_square_detection(cv::Mat* srcROI, cv::Mat grad_x, 
 
 
    den_buf = den_buf.inv();
+   //std::cout<< "den_buf" << std::endl<<num_buf<<std::endl;
    final_product = den_buf*num_buf;
    *X = final_product.at<float>(0,0);
    *Y = final_product.at<float>(1,0);
 
 }
+
 

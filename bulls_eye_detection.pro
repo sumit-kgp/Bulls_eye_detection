@@ -20,7 +20,9 @@ SOURCES += main.cpp\
     least_square_detection.cpp \
     multiple_tracking.cpp \
     suppress_local_neighborhood.cpp \
-    non_maxima_suppression.cpp
+    non_maxima_suppression.cpp \
+    least_square_detection2.cpp \
+    non_maxima_suppression2.cpp
 
 HEADERS  += mainwindow.h \
     calcmaxintensity.h \
@@ -28,6 +30,8 @@ HEADERS  += mainwindow.h \
     least_square_detection.h \
     multiple_tracking.h \
     suppress_local_neighborhood.h \
-    non_maxima_suppression.h
+    non_maxima_suppression.h \
+    least_square_detection2.h \
+    non_maxima_suppression2.h
 
 FORMS    += mainwindow.ui

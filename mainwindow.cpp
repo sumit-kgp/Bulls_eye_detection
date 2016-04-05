@@ -14,6 +14,7 @@
 #include "calcmaxintensity.h"
 #include "addstraightline.h"
 #include "least_square_detection.h"
+#include "least_square_detection2.h"
 #include "multiple_tracking.h"
 #include "suppress_local_neighborhood.h"
 #include "non_maxima_suppression.h"
@@ -39,8 +40,8 @@ MainWindow::MainWindow(QWidget *parent) :
       int ddepth = CV_32F;
 
 
-     for(int ij=0;ij<10;ij++)                         //SPEED TEST FOR 10 ITERATIONS
-     {
+    // for(int ij=0;ij<10;ij++)                         //SPEED TEST FOR 10 ITERATIONS
+     //{
      src = imread("/home/sumit/Downloads/holo2.jpg");
      start = clock();
      Mat src_gray;
@@ -187,7 +188,7 @@ MainWindow::MainWindow(QWidget *parent) :
                 float X, Y;
 
                 //printing lines close to centre
-                least_square_detection(&srcROI, grad_x, grad_y, grad, newLoc, &X, &Y);                  //does least square computation for nearly concentric vectors
+                least_square_detection2(&srcROI, grad_x, grad_y, grad, newLoc, &X, &Y);                  //does least square computation for nearly concentric vectors
                 end = clock();
                 elapsed = ((double) (end - start)) / CLOCKS_PER_SEC;
                 fprintf(stdout,"time elapsed after every least square operation %f\n", elapsed);
@@ -204,7 +205,7 @@ MainWindow::MainWindow(QWidget *parent) :
         fprintf(stdout,"time elapsed is %f\n\n", elapsed);
 
 
-       } //FOR 10 ITERATIONS
+      // } //FOR 10 ITERATIONS
 
 }//END OF MAIN
 
