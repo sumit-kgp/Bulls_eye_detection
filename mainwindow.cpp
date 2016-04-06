@@ -18,6 +18,7 @@
 #include "multiple_tracking.h"
 #include "suppress_local_neighborhood.h"
 #include "non_maxima_suppression.h"
+#include "non_maxima_suppression2.h"
 
 using namespace cv;
 using namespace std;
@@ -40,8 +41,8 @@ MainWindow::MainWindow(QWidget *parent) :
       int ddepth = CV_32F;
 
 
-    // for(int ij=0;ij<10;ij++)                         //SPEED TEST FOR 10 ITERATIONS
-     //{
+    for(int ij=0;ij<10;ij++)                         //SPEED TEST FOR 10 ITERATIONS
+     {
      src = imread("/home/sumit/Downloads/holo2.jpg");
      start = clock();
      Mat src_gray;
@@ -127,18 +128,19 @@ MainWindow::MainWindow(QWidget *parent) :
 
 
         //NON MAXIMA SUPPRESSION
-        for(int i = 0; i<2; i++)
-        non_maxima_suppression(&mask2, &p_temp);
+        //for(int i = 0; i<2; i++)
+        //non_maxima_suppression(&mask2, &p_temp);
+        non_maxima_suppression2(mask2, &p_temp);
 
         end = clock();
         elapsed = ((double) (end - start)) / CLOCKS_PER_SEC;
         fprintf(stdout,"time elapsed after multiple tracking is %f\n", elapsed);
 
 
-        for (int n = 0; n < p_temp.size(); n++)
+      /*  for (int n = 0; n < p_temp.size(); n++)
         {
             std::cout << "points of local maxima" << std::endl << p_temp[n].x << "," <<p_temp[n].y<< std::endl;
-        }
+        }*/
 
         //  END OF MULTIPLE TRACKING
 
@@ -158,7 +160,7 @@ MainWindow::MainWindow(QWidget *parent) :
             imshow("Intersecting lines", mask);
             imshow("equalized", dst);
 
-            for (int n = 0; n < p_temp.size(); n++)
+            for (int n = 0; n < 3; n++)
                 {
 
                 maxLoc.x = xscale*p_temp[n].x;
@@ -205,7 +207,7 @@ MainWindow::MainWindow(QWidget *parent) :
         fprintf(stdout,"time elapsed is %f\n\n", elapsed);
 
 
-      // } //FOR 10 ITERATIONS
+      } //FOR 10 ITERATIONS
 
 }//END OF MAIN
 
