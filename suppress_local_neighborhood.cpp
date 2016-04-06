@@ -14,8 +14,12 @@ using namespace std;
 
 suppress_local_neighborhood::suppress_local_neighborhood(cv::Mat mask, cv::Mat* mask2)
 {
+    int erosion_size = 5;
+    cv::Mat element = cv::getStructuringElement(cv::MORPH_ELLIPSE,
+                          cv::Size(2 * erosion_size + 1, 2 * erosion_size + 1),
+                          cv::Point(erosion_size, erosion_size) );
     // find pixels that are equal to the local neighborhood not maximum (including 'plateaus')
-       cv::dilate(mask, *mask2, cv::Mat());
+       cv::dilate(mask, *mask2, element);
        imshow("dilate", *mask2);
        cv::compare(mask, *mask2, *mask2, cv::CMP_GE);
        imshow("1st compare", *mask2);

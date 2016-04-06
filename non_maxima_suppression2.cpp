@@ -35,14 +35,14 @@ vector<sorted_pixels> intensity_sort;
 sorted_pixels element;
 
 
-    for(int i=30; i<M-blocksize; i+=blocksize+1)
+    for(int i=0; i<M-blocksize; i+=blocksize+1)
     {
-        for(int j=30; j<N-blocksize; j+=blocksize+1)
+        for(int j=0; j<N-blocksize; j+=blocksize+1)
             {
 
             Mat mask2ROI(mask2,cv::Rect(j,i,blocksize,blocksize));
             minMaxLoc(mask2ROI, NULL, &maxVal, &minLoc, &maxLoc);
-                if(maxVal>10){
+                if(maxVal>0){
                     //Translating the coordinates of local maxima to cartesian ones of the mask2
                     maxLoc.x=maxLoc.x+j;
                     maxLoc.y=maxLoc.y+i;

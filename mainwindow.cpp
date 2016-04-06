@@ -43,7 +43,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
     for(int ij=0;ij<10;ij++)                         //SPEED TEST FOR 10 ITERATIONS
      {
-     src = imread("/home/sumit/Downloads/holo2.jpg");
+     src = imread("/home/sumit/Downloads/multiple.jpg");
      start = clock();
      Mat src_gray;
      cv::resize(src, src_gray, Size(), 0.25, 0.25, INTER_NEAREST);
@@ -51,8 +51,8 @@ MainWindow::MainWindow(QWidget *parent) :
       /// Convert it to gray
       cvtColor( src_gray, src_gray, CV_BGR2GRAY );
       //GaussianBlur( src_gray, src_gray, Size(15,15), 5, 5, BORDER_DEFAULT );
-      GaussianBlur( src_gray, src_gray, Size(5,5), 2, 2, BORDER_DEFAULT );//when size is petite
-      //GaussianBlur( src_gray, src_gray, Size(3,3), 1, 1, BORDER_DEFAULT );
+      //GaussianBlur( src_gray, src_gray, Size(5,5), 2, 2, BORDER_DEFAULT );//when size is petite
+      GaussianBlur( src_gray, src_gray, Size(3,3), 1, 1, BORDER_DEFAULT );
 
       src_gray.convertTo(src_float,CV_32FC1);
       /// Generate grad_x and grad_y
@@ -74,7 +74,7 @@ MainWindow::MainWindow(QWidget *parent) :
         calcMaxIntensity(src_gray, grad_x, grad_y, &grad);                  //Computes overall gradient magnitude
 
         double minVal, maxVal;
-        minMaxLoc(grad, &minVal, &maxVal, NULL, NULL);
+        //minMaxLoc(grad, &minVal, &maxVal, NULL, NULL);
 
         for (int i = 0 ; i < src_gray.rows ; i+= resolution)
         {
@@ -90,7 +90,7 @@ MainWindow::MainWindow(QWidget *parent) :
                     grad_ptr.x = *pixel_x;
                     grad_ptr.y = *pixel_y;
 
-                            if(*pixel>0.6*maxVal){
+                            if(*pixel>100){  //std::cout<<"maxLoc is"<<maxLoc<<std::endl;
 
                             p2.x = p.x+grad_ptr.x;                                                      //Creating vectors of length gradient intensity
                             p2.y = p.y+grad_ptr.y;
@@ -105,13 +105,10 @@ MainWindow::MainWindow(QWidget *parent) :
 
 
         minMaxLoc(mask, &minVal, &maxVal, NULL, NULL);
-        Mat dst = Mat::zeros(mask.size(), CV_8UC1);
 
             //Scaling down the image values
 
         mask.convertTo(mask,CV_8U, 255/(maxVal-minVal),-minVal*255/(maxVal-minVal));
-
-        minMaxLoc(mask, &minVal, &maxVal);
 
 
         Mat mask2;
@@ -145,22 +142,17 @@ MainWindow::MainWindow(QWidget *parent) :
         //  END OF MULTIPLE TRACKING
 
 
-        //HISTOGRAM EQUALIZATION
-
-        equalizeHist( mask, dst);
 
 
-            Point minLoc, maxLoc;
-            minMaxLoc(mask, &minVal, &maxVal, &minLoc, &maxLoc);
+            Point maxLoc;
 
-            circle(dst, maxLoc, 4, Scalar(0,0,0), 4, 8, 0);
             float xscale = 4.0;//src.cols/800;
             float yscale = 4.0;//src.rows/800;
 
             imshow("Intersecting lines", mask);
-            imshow("equalized", dst);
 
-            for (int n = 0; n < 3; n++)
+
+            for (int n = 0; n < 7; n++)
                 {
 
                 maxLoc.x = xscale*p_temp[n].x;
@@ -173,7 +165,7 @@ MainWindow::MainWindow(QWidget *parent) :
                 //script for printing lines closer to the centre
 
                 Point newLoc;
-                float offset = 100.0;
+                float offset = 30.0;
                 newLoc.x=offset;
                 newLoc.y=offset;
                 Mat srcROI(src,cv::Rect(maxLoc.x-offset,maxLoc.y-offset,2*offset,2*offset));
