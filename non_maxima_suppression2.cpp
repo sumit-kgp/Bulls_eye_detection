@@ -24,28 +24,31 @@ bool wayToSort(const sorted_pixels &a, const sorted_pixels &b) {return a.intensi
 
 non_maxima_suppression2::non_maxima_suppression2(cv::Mat mask2, std::vector<cv::Point> *p_temp)
 {
-int blocksize = 30;
+int blocksize = 50;
+int top, bottom, left, right;
 const int M = mask2.rows;
 const int N = mask2.cols;
 Point minLoc, maxLoc;
 double maxVal;
 Mat nms_mask = Mat::zeros(mask2.size(), mask2.type());
-
+top = (int) (blocksize); bottom = (int) (blocksize);
+left = (int) (blocksize); right = (int) (blocksize);
+copyMakeBorder( mask2, mask2, top, bottom, left, right, BORDER_CONSTANT, 0 );
 vector<sorted_pixels> intensity_sort;
 sorted_pixels element;
 
 
-    for(int i=0; i<M-blocksize; i+=blocksize+1)
+    for(int i=0; i<M; i+=blocksize)
     {
-        for(int j=0; j<N-blocksize; j+=blocksize+1)
+        for(int j=0; j<N; j+=blocksize)
             {
 
             Mat mask2ROI(mask2,cv::Rect(j,i,blocksize,blocksize));
             minMaxLoc(mask2ROI, NULL, &maxVal, &minLoc, &maxLoc);
                 if(maxVal>0){
                     //Translating the coordinates of local maxima to cartesian ones of the mask2
-                    maxLoc.x=maxLoc.x+j;
-                    maxLoc.y=maxLoc.y+i;
+                    maxLoc.x=maxLoc.x+j-blocksize;
+                    maxLoc.y=maxLoc.y+i-blocksize;
 
                 element.sorted_pixels = maxLoc;
                 element.intensity = maxVal;
@@ -64,7 +67,7 @@ vector<sorted_pixels>::iterator it;
          for(it= intensity_sort.begin(); it!=intensity_sort.end(); it++)
          {
             p_temp->push_back(it->sorted_pixels);
-            //std::cout<< "sorted pixels are "<< it->intensity<<std::endl;
+
          }
 
  imshow("after non maximal suppression", nms_mask);

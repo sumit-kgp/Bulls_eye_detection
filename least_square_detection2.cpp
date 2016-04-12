@@ -63,63 +63,64 @@ least_square_detection2::least_square_detection2(cv::Mat* srcROI, cv::Mat grad_x
 
         if(*pixel>0.04*maxVal)
         {
-            p2.x = p.x+0.01*grad_ptr.x;
-            p2.y = p.y+0.01*grad_ptr.y;
 
-            float P[2][1]={p.x, p.y};  //VECTOR POINT
-            float V[2][1] = { (p2.x-p.x), (p2.y-p.y) }; //DIRECTION VECTOR
+                p2.x = p.x+grad_ptr.x;
+                p2.y = p.y+grad_ptr.y;
 
-            //V-transpose-V
-            float V_buf = (p2.x-p.x)*(p2.x-p.x)+(p2.y-p.y)*(p2.y-p.y);
+                float P[2][1]={p.x, p.y};  //VECTOR POINT
+                float V[2][1] = { (p2.x-p.x), (p2.y-p.y) }; //DIRECTION VECTOR
 
-            //V-V-transpose
-            float V_buf_t[2][2] = {(p2.x-p.x)*(p2.x-p.x), (p2.x-p.x)*(p2.y-p.y), (p2.x-p.x)*(p2.y-p.y), (p2.y-p.y)*(p2.y-p.y)};
+                //V-transpose-V
+                float V_buf = (p2.x-p.x)*(p2.x-p.x)+(p2.y-p.y)*(p2.y-p.y);
 
-            float Pc[2][1] = {p.x-newLoc.x, p.y-newLoc.y};
+                //V-V-transpose
+                float V_buf_t[2][2] = {(p2.x-p.x)*(p2.x-p.x), (p2.x-p.x)*(p2.y-p.y), (p2.x-p.x)*(p2.y-p.y), (p2.y-p.y)*(p2.y-p.y)};
 
-            //CALCULATING THE DISTANCE OF DIRECTION VECTORS FROM A ROUGH CENTER
+                float Pc[2][1] = {p.x-newLoc.x, p.y-newLoc.y};
 
-            den_buf1[0][0]=1.0-(V_buf_t[0][0]/V_buf);
-            den_buf1[0][1]=0.0-(V_buf_t[0][1]/V_buf);
-            den_buf1[1][0]=0.0-(V_buf_t[1][0]/V_buf);
-            den_buf1[1][1]=1.0-(V_buf_t[1][1]/V_buf);
+                //CALCULATING THE DISTANCE OF DIRECTION VECTORS FROM A ROUGH CENTER
 
-            perpendicular[0][0]=den_buf1[0][0]*Pc[0][0]+den_buf1[0][1]*Pc[1][0];
-            perpendicular[1][0]=den_buf1[1][0]*Pc[0][0]+den_buf1[1][1]*Pc[1][0];
+                den_buf1[0][0]=1.0-(V_buf_t[0][0]/V_buf);
+                den_buf1[0][1]=0.0-(V_buf_t[0][1]/V_buf);
+                den_buf1[1][0]=0.0-(V_buf_t[1][0]/V_buf);
+                den_buf1[1][1]=1.0-(V_buf_t[1][1]/V_buf);
 
-            float per_dist = std::sqrt(std::pow(perpendicular[0][0],2)+std::pow(perpendicular[1][0],2));
+                perpendicular[0][0]=den_buf1[0][0]*Pc[0][0]+den_buf1[0][1]*Pc[1][0];
+                perpendicular[1][0]=den_buf1[1][0]*Pc[0][0]+den_buf1[1][1]*Pc[1][0];
 
-            //CALCULATING DISTANCE OF POINT FROM CENTER
+                float per_dist = std::sqrt(std::pow(perpendicular[0][0],2)+std::pow(perpendicular[1][0],2));
 
-            float distance = std::sqrt(std::pow(Pc[0][0],2)+std::pow(Pc[1][0],2));
+                //CALCULATING DISTANCE OF POINT FROM CENTER
 
-
-            //if the line passes very close to the centre, then compute least square coordinate
+                float distance = std::sqrt(std::pow(Pc[0][0],2)+std::pow(Pc[1][0],2));
 
 
-            if(  (per_dist<3.0)&&(distance<100))
-            {
-
-            //FOR THE GIVEN TEST CASES ADDING THE TERMS TO THE RESPECTIVE ACCUMULATORS
-
-                num_buf1[0][0]=den_buf1[0][0]*P[0][0]+den_buf1[0][1]*P[1][0];
-                num_buf1[1][0]=den_buf1[1][0]*P[0][0]+den_buf1[1][1]*P[1][0];
-                num_buf2[0][0] = num_buf2[0][0]+num_buf1[0][0];
-                num_buf2[1][0] = num_buf2[1][0]+num_buf1[1][0];
-
-                den_buf2[0][0]=den_buf2[0][0]+den_buf1[0][0];
-                den_buf2[0][1]=den_buf2[0][1]+den_buf1[0][1];
-                den_buf2[1][0]=den_buf2[1][0]+den_buf1[1][0];
-                den_buf2[1][1]=den_buf2[1][1]+den_buf1[1][1];
+                //if the line passes very close to the centre, then compute least square coordinate
 
 
+                    if(  (per_dist<3.0)&&(distance<100))
+                        {
 
-                //arrowedLine(*srcROI,p2,p,Scalar(0,255,0),0.1,8,0,0.1);
+                        //FOR THE GIVEN TEST CASES ADDING THE TERMS TO THE RESPECTIVE ACCUMULATORS
 
-            }
+                            num_buf1[0][0]=den_buf1[0][0]*P[0][0]+den_buf1[0][1]*P[1][0];
+                            num_buf1[1][0]=den_buf1[1][0]*P[0][0]+den_buf1[1][1]*P[1][0];
+                            num_buf2[0][0] = num_buf2[0][0]+num_buf1[0][0];
+                            num_buf2[1][0] = num_buf2[1][0]+num_buf1[1][0];
+
+                            den_buf2[0][0]=den_buf2[0][0]+den_buf1[0][0];
+                            den_buf2[0][1]=den_buf2[0][1]+den_buf1[0][1];
+                            den_buf2[1][0]=den_buf2[1][0]+den_buf1[1][0];
+                            den_buf2[1][1]=den_buf2[1][1]+den_buf1[1][1];
+
+
+
+                            //arrowedLine(*srcROI,p2,p,Scalar(0,255,0),0.1,8,0,0.1);
+
+                        }
+
 
         }
-
         pixel_x = pixel_x+resolution;
         pixel_y = pixel_y+resolution;
         pixel = pixel+resolution;

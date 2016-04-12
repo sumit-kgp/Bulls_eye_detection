@@ -43,7 +43,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
     for(int ij=0;ij<10;ij++)                         //SPEED TEST FOR 10 ITERATIONS
      {
-     src = imread("/home/sumit/Downloads/multiple.jpg");
+     src = imread("/home/sumit/Downloads/basler2.jpg");
      start = clock();
      Mat src_gray;
      cv::resize(src, src_gray, Size(), 0.25, 0.25, INTER_NEAREST);
@@ -52,7 +52,7 @@ MainWindow::MainWindow(QWidget *parent) :
       cvtColor( src_gray, src_gray, CV_BGR2GRAY );
       //GaussianBlur( src_gray, src_gray, Size(15,15), 5, 5, BORDER_DEFAULT );
       //GaussianBlur( src_gray, src_gray, Size(5,5), 2, 2, BORDER_DEFAULT );//when size is petite
-      GaussianBlur( src_gray, src_gray, Size(3,3), 1, 1, BORDER_DEFAULT );
+      GaussianBlur( src_gray, src_gray, Size(5,5), 4, 4, BORDER_DEFAULT );
 
       src_gray.convertTo(src_float,CV_32FC1);
       /// Generate grad_x and grad_y
@@ -90,7 +90,7 @@ MainWindow::MainWindow(QWidget *parent) :
                     grad_ptr.x = *pixel_x;
                     grad_ptr.y = *pixel_y;
 
-                            if(*pixel>100){  //std::cout<<"maxLoc is"<<maxLoc<<std::endl;
+                            if(*pixel>250){  //std::cout<<"maxLoc is"<<maxLoc<<std::endl; //350 for 2048 image
 
                             p2.x = p.x+grad_ptr.x;                                                      //Creating vectors of length gradient intensity
                             p2.y = p.y+grad_ptr.y;
@@ -152,7 +152,7 @@ MainWindow::MainWindow(QWidget *parent) :
             imshow("Intersecting lines", mask);
 
 
-            for (int n = 0; n < 7; n++)
+            for (int n = 0; n < 20; n++)
                 {
 
                 maxLoc.x = xscale*p_temp[n].x;
@@ -165,10 +165,15 @@ MainWindow::MainWindow(QWidget *parent) :
                 //script for printing lines closer to the centre
 
                 Point newLoc;
-                float offset = 30.0;
+                float offset = 100.0;
                 newLoc.x=offset;
                 newLoc.y=offset;
-                Mat srcROI(src,cv::Rect(maxLoc.x-offset,maxLoc.y-offset,2*offset,2*offset));
+
+                    if((maxLoc.y>=offset)&&(maxLoc.y+offset<=src.rows)&&(maxLoc.x>=offset)&&(maxLoc.x+offset<=src.cols))
+                        {
+
+                            Mat srcROI(src,cv::Rect(maxLoc.x-offset,maxLoc.y-offset,2*offset,2*offset));
+
 
                  //GaussianBlur( srcROI, srcROI, Size(5,5), 2, 2, BORDER_DEFAULT );
                  /// Gradient X
@@ -183,6 +188,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
                 //printing lines close to centre
                 least_square_detection2(&srcROI, grad_x, grad_y, grad, newLoc, &X, &Y);                  //does least square computation for nearly concentric vectors
+
                 end = clock();
                 elapsed = ((double) (end - start)) / CLOCKS_PER_SEC;
                 fprintf(stdout,"time elapsed after every least square operation %f\n", elapsed);
@@ -191,6 +197,7 @@ MainWindow::MainWindow(QWidget *parent) :
                 float Y_src=(maxLoc.y-offset+Y);
                 circle(src, Point(X_src,Y_src), 3, Scalar(0,0,255), 3, 8, 0);
                 fprintf(stdout,"location is %f, %f\n", X_src, Y_src);
+                        }
             }
         imshow("equalizedonbig", src);
 

@@ -14,7 +14,7 @@ using namespace std;
 
 suppress_local_neighborhood::suppress_local_neighborhood(cv::Mat mask, cv::Mat* mask2)
 {
-    int erosion_size = 5;
+    int erosion_size = 3;
     cv::Mat element = cv::getStructuringElement(cv::MORPH_ELLIPSE,
                           cv::Size(2 * erosion_size + 1, 2 * erosion_size + 1),
                           cv::Point(erosion_size, erosion_size) );
