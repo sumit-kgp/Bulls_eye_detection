@@ -3,6 +3,7 @@
 #include <iostream>
 #include <opencv2/core/core.hpp>
 #include "opencv2/imgproc/imgproc.hpp"
+#include "opencv2/highgui/highgui.hpp"
 #include <stdlib.h>
 
 using namespace cv;
@@ -30,6 +31,7 @@ addStraightLine::addStraightLine(cv::Mat *mask, cv::Point2f p1, cv::Point2f p2, 
                 p.y = 0;
                 q.y = mask->rows;
         }
+
         LineIterator it(*mask, p, q, 8);
         for(int i = 0; i < it.count; i++, ++it)
         {

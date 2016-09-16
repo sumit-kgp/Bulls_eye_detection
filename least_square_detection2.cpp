@@ -98,7 +98,7 @@ least_square_detection2::least_square_detection2(cv::Mat* srcROI, cv::Mat grad_x
                 //if the line passes very close to the centre, then compute least square coordinate
 
 
-                    if(  (per_dist<3.0)&&(distance<100))
+                    if(  (per_dist<3.0)&&(distance<75))
                         {
 
                         //FOR THE GIVEN TEST CASES ADDING THE TERMS TO THE RESPECTIVE ACCUMULATORS
@@ -116,6 +116,7 @@ least_square_detection2::least_square_detection2(cv::Mat* srcROI, cv::Mat grad_x
 
 
                             //arrowedLine(*srcROI,p2,p,Scalar(0,255,0),0.1,8,0,0.1);
+
 
                         }
 

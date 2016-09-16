@@ -22,8 +22,9 @@ struct sorted_pixels{
 //function to sort coordinates based on intensity
 bool wayToSort(const sorted_pixels &a, const sorted_pixels &b) {return a.intensity>b.intensity;}
 
-non_maxima_suppression2::non_maxima_suppression2(cv::Mat mask2, std::vector<cv::Point> *p_temp)
+non_maxima_suppression2::non_maxima_suppression2(cv::Mat mask2, std::vector<cv::Point> *p_temp, int background_buffer_counter)
 {
+    char file[125];
 int blocksize = 50;
 int top, bottom, left, right;
 const int M = mask2.rows;
@@ -38,9 +39,9 @@ vector<sorted_pixels> intensity_sort;
 sorted_pixels element;
 
 
-    for(int i=0; i<M; i+=blocksize)
+    for(int i=0; i<M+1; i+=blocksize)
     {
-        for(int j=0; j<N; j+=blocksize)
+        for(int j=0; j<N+1; j+=blocksize)
             {
 
             Mat mask2ROI(mask2,cv::Rect(j,i,blocksize,blocksize));
@@ -55,6 +56,11 @@ sorted_pixels element;
                 intensity_sort.push_back(element);
 
                 nms_mask.at<uchar>(maxLoc) = maxVal;
+
+                //circle(nms_mask, maxLoc, 0.1*maxVal, Scalar(255,0,255), 3, 8, 0);
+
+                //line(nms_mask,Point(maxLoc.x-0.1*maxVal, maxLoc.y),Point(maxLoc.x+0.1*maxVal, maxLoc.y),Scalar(255,255,255),0.1,8,0);
+                //line(nms_mask,Point(maxLoc.x, maxLoc.y-0.1*maxVal),Point(maxLoc.x, maxLoc.y+0.1*maxVal),Scalar(255,255,255),0.1,8,0);
 
                 }
 
@@ -71,6 +77,9 @@ vector<sorted_pixels>::iterator it;
          }
 
  imshow("after non maximal suppression", nms_mask);
+ //sprintf(file,"/home/sumit/nms/NMS_%d.png\n", background_buffer_counter);
+ //imwrite(file, nms_mask);
+ //imwrite("/home/sumit/Desktop/tracking image/non_max_supp2.jpg", nms_mask);
 
 }
 

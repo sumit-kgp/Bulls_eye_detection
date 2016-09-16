@@ -11,7 +11,7 @@
 class non_maxima_suppression2
 {
 public:
-    non_maxima_suppression2(cv::Mat mask2, std::vector<cv::Point> *p_temp);
+    non_maxima_suppression2(cv::Mat mask2, std::vector<cv::Point> *p_temp, int background_buffer_counter);
 };
 
 #endif // NON_MAXIMA_SUPPRESSION2_H

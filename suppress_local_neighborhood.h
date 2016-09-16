@@ -10,7 +10,7 @@
 class suppress_local_neighborhood
 {
 public:
-    suppress_local_neighborhood(Mat mask, Mat *mask2);
+    suppress_local_neighborhood(Mat mask, Mat *mask2, int background_buffer_counter);
 };
 
 #endif // SUPPRESS_LOCAL_NEIGHBORHOOD_H
