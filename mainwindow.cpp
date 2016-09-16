@@ -101,14 +101,14 @@ MainWindow::MainWindow(QWidget *parent) :
     double elapsed;
 
 
-    Mat src_float, templBackground, tempBackground, background;
+    Mat src_float, templBackground1, templBackground2, tempBackground, tempBackground1, tempBackground2, background1, background2;
     Mat grad;
     Point Lock;
 
 
 //    ofstream monotrackingFile;
 
-    int scale = 1, background_buffer_counter = 0, num_buff_background =10;
+    int scale = 1, background_buffer_counter, background_buffer_counter1 = 0, background_buffer_counter2 = 0, num_buff_background =10;
     int delta = 0;
     int ddepth = CV_32F;
 
@@ -143,50 +143,37 @@ MainWindow::MainWindow(QWidget *parent) :
     Matrix<float,3,1> X;
     ///BACKGROUND SUBTRACTION FOR TEST IMAGE
 
-    //src = imread("/home/sumit/Downloads/basler2.jpg");
-    /*src = imread("/media/sumit/44AA78DBAA78CAC6/ETH Zürich/Nanoscribe/20Apr2016_holograms/6_closeup.bmp");
-    //std::cout<< "raw"<< std::endl<< src<<std::endl;
-    //imshow("original image", src);
-    //cvtColor( src, src, CV_BGR2GRAY );
-    src.convertTo(src,CV_32FC1);
-    //std::cout<< "raw_convert32"<< std::endl<< src<<std::endl;
 
-    src2 = imread("/media/sumit/44AA78DBAA78CAC6/ETH Zürich/Nanoscribe/20Apr2016_holograms/backafter5.bmp");
-    src2.convertTo(src2,CV_32FC1);
-    //std::cout<< "back_convert32"<< std::endl<< src2<<std::endl;
-
-    //cvtColor( src2, src2, CV_BGR2GRAY );
-    cv::subtract(src,src2,src);
-    //std::cout<< "subtract"<< std::endl<< src<<std::endl;
-    cv::normalize(src, src, 0, 255, NORM_MINMAX);
-    //std::cout<< "subtract_normalize"<< std::endl<< src<<std::endl;
-    src.convertTo(src, CV_8U);
-
-    //imshow("subtracted image", src);
-    cv::Rect myROI(200, 100, 1500, 1100);
-    src = src(myROI);
-    imshow("subtracted image", src);*/
-
-
-
-    ///CAPTURING FROM A DIRECTORY
-    string folder = "/media/sumit/UUI/multiple_tracking/cam2/";
+    ///CAPTURING FROM A DIRECTORY 1
+    string folder1 = "/media/sumit/UUI/multiple_tracking/cam1/";
     char file[256];
-    vector<string> filenames;
+    vector<string> filenames1;
 
-    readFilenamesBoost(filenames, folder);    
-    std::sort(filenames.begin(), filenames.end());
+    ///CAPTURING FROM A DIRECTORY 2
+    string folder2 = "/media/sumit/UUI/multiple_tracking/cam2/";
+    vector<string> filenames2;
+
+    int key = 1;  ///KEY TO SWITCH BETWEEN THE TWO CAMERA POST PROCESSING
+    readFilenamesBoost(filenames1, folder1);
+    std::sort(filenames1.begin(), filenames1.end());
+    readFilenamesBoost(filenames2, folder2);
+    std::sort(filenames2.begin(), filenames2.end());
     monotrackingFile.open("/home/sumit/TrackerImages/monotracking.xls");
     monotrackingFile<<"filename" <<"\t"<< "U" <<"\t" << "V" << "\n";
 
-    for(size_t i = 0; i < filenames.size(); ++i)
+    for(size_t i = 0, j = 0; i < filenames1.size(), j<filenames2.size(); ++i, ++j)
     {
-           Mat src = imread(folder + filenames[i]);
-            cvtColor( src, src, CV_BGR2GRAY );
+        Mat src1, src2, src;
+            src1 = imread(folder1 + filenames1[i]);
+            src2 = imread(folder2 + filenames2[i]);
+
+            cvtColor( src1, src1, CV_BGR2GRAY );
+            cvtColor( src2, src2, CV_BGR2GRAY );
        //      if (waitKey(0) == 27) break;
-           if(!src.data)
+           if(!src1.data || !src2.data)
                cerr << "Problem loading image!!!" << endl;
-           background_buffer_counter++;
+           background_buffer_counter1++;
+           background_buffer_counter2++;
 //}
 
 
@@ -213,67 +200,89 @@ MainWindow::MainWindow(QWidget *parent) :
        //cvtColor( src, background, CV_BGR2GRAY );
 
 
-    if (background_buffer_counter <= num_buff_background){
+    if (background_buffer_counter1 <= num_buff_background){
 
-         src.convertTo(background,CV_32FC1);
-//        cap.read(background);
-//        cvtColor( src, background, CV_BGR2GRAY );
-         if (background_buffer_counter == 1)
-        tempBackground = Mat::zeros(background.rows, background.cols, CV_32FC1);
+         src1.convertTo(background1,CV_32FC1);
+
+         if (background_buffer_counter1 == 1)
+        tempBackground1 = Mat::zeros(background1.rows, background1.cols, CV_32FC1);
+
+        ///BUFFER BACKGROUND SUBTRACTION
+        std::vector<cv::Mat> bufferBackground;
+
+            bufferBackground.push_back(1/(float)num_buff_background*background1);
+            tempBackground1 += 1/(float)num_buff_background*background1;
+
+
+    }
+
+    if (background_buffer_counter2 <= num_buff_background){
+
+         src2.convertTo(background2,CV_32FC1);
+
+         if (background_buffer_counter2 == 1)
+        tempBackground2 = Mat::zeros(background2.rows, background2.cols, CV_32FC1);
 
 
         ///BUFFER BACKGROUND SUBTRACTION
         std::vector<cv::Mat> bufferBackground;
 
-        //for (int i=0;i<num_buff_background;i++)
-        //{
-            //Mat background;
-            //cap.read(background);
-            //cvtColor( background, background, CV_BGR2GRAY );
+            bufferBackground.push_back(1/(float)num_buff_background*background2);
+            tempBackground2 += 1/(float)num_buff_background*background2;
 
-            //background.convertTo(background,CV_32FC1);
-            //medianBlur(background, background, 3 );
 
-            bufferBackground.push_back(1/(float)num_buff_background*background);
-            tempBackground += 1/(float)num_buff_background*background;
-
-        //}
-        //break;
     }
 
-    else if(background_buffer_counter > num_buff_background){
+    else if(background_buffer_counter1 > num_buff_background && background_buffer_counter2 > num_buff_background){
 
-start = clock();
-    //cap.set(CV_CAP_PROP_POS_FRAMES,num_buff_background); //Set index to first frame or num_buff_background frame if above chunk of code is active
+        ///RUNNING TWO ITERATIONS, ONE FOR PROCESSING EACH FRAME
+        for (int k = 0; k<2; k++)
+        {
+            if(k == 0)
+            {
+                src1.copyTo(src);
+                tempBackground1.copyTo(tempBackground);
+                background_buffer_counter = background_buffer_counter1;
+            }
+            else if (k == 1)
+            {
+                src2.copyTo(src);
+                tempBackground2.copyTo(tempBackground);
+                background_buffer_counter = background_buffer_counter2;
+            }
 
-    //while(1)
-    //{
+        start = clock();
+
 
         double alpha = 0.9;
         Mat frame;
 
-        //bool success = cap.read(frame);
-        //cvtColor( src, frame, CV_BGR2GRAY );
-//        if (!success){
-//            cout << "Cannot read  frame " << endl;
-//            break;
-//        }
+
 
          src.convertTo(frame,CV_32FC1);
-        //start = clock();
+
         ///IMPLEMENTING REAL TIME MOVING AVG BACKGROUND SUBTRACTION
 
-       // if (cap.get(CV_CAP_PROP_POS_FRAMES)!= num_buff_background+1)
-        //{
-         if(background_buffer_counter > num_buff_background+1)
-           tempBackground = alpha * tempBackground + (1-alpha) * templBackground;
+        ///EXPONENTIAL SMOOTHING FOR FIRST CAMERA FRAME
+         if((background_buffer_counter1 > num_buff_background+1)&&(src.rows == 1200)){
+           tempBackground = alpha * tempBackground + (1-alpha) * templBackground1;
+           tempBackground.copyTo(tempBackground1);
+        }
 
-        //}
+         ///EXPONENTIAL SMOOTHING FOR FIRST CAMERA FRAME
+         if((background_buffer_counter2 > num_buff_background+1)&&(src.rows == 2048)){
+           tempBackground = alpha * tempBackground + (1-alpha) * templBackground2;
+           tempBackground.copyTo(tempBackground2);
+         }
 
 
+         ///COPYING THE FRAME FOR SUBSEQUENT BACKGROUND SUBTRACTION
+          if(src.rows == 1200)
+          frame.copyTo(templBackground1);
+          else if (src.rows == 2048)
+          frame.copyTo(templBackground2);
 
-        ///COPYING THE FRAME FOR SUBSEQUENT BACKGROUND SUBTRACTION
-         frame.copyTo(templBackground);
+
 
         cv::subtract(frame, tempBackground,frame);
         cv::normalize(frame, src, 0, 255, NORM_MINMAX);
@@ -474,6 +483,10 @@ start = clock();
                 //std::cout<<"location is "<<Lock<<endl;
 
                 //monotrackingFile<<i<< "\t"<< X_src <<"\t" << Y_src << "\n";
+                if(src.rows == 1200)
+                triangulate(Lock, S1, R1, T1, &X);
+
+                else if(src.rows == 2048)
                 triangulate(Lock, S2, R2, T2, &X);
 
                 monotrackingFile<<i<< "\t"<< Lock.x<< "\t"<< Lock.y <<"\t"<< X[0] <<"\t"<< X[1] <<"\t"<< X[2] << "\t\t";
@@ -481,6 +494,10 @@ start = clock();
             }
         }
         monotrackingFile<<"\n";
+
+        end = clock();
+        elapsed = ((double) ( (end - start))) / CLOCKS_PER_SEC;
+        fprintf(stdout,"time elapsed after triangulation %f\n\n", elapsed);
 
          src.convertTo(src,CV_8U);
         imshow("equalizedonbig", src);
@@ -497,11 +514,7 @@ start = clock();
         //cout<<X<<endl;
         //monotrackingFile<<i<< "\t"<< Lock.x<< "\t"<< Lock.y <<"\t"<< X[0] <<"\t"<< X[1] <<"\t"<< X[2] << "\n";
 
-        end = clock();
-        elapsed = ((double) ( (end - start))) / CLOCKS_PER_SEC;
-        fprintf(stdout,"time elapsed after triangulation is %f\n\n", elapsed);
-        // monotrackingFile.close();
-
+        }///FOR LOOP FOR SELECTING CAMERA
     }/// ELSE IF FOR ACTUAL TRACKING PART
     } ///FOR LOOP FOR READING THE WHOLE DIRECTORY
     monotrackingFile.close();
